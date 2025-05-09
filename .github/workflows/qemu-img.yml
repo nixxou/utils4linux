@@ -14,12 +14,10 @@ jobs:
           cd zstd-1.5.5
           make install -j$(nproc)
           cd ..
-          curl -L https://github.com/qemu/qemu/archive/refs/tags/v8.2.0.tar.gz | tar -zx
-          cd qemu-8.2.0
+          git clone --depth=1 --branch stable-8.2 https://github.com/nixxou/qemu.git qemu
+          cd qemu
           ./configure --without-default-features --disable-system --disable-user --enable-zstd --enable-tools --enable-lto --static
-          sed -i block/qcow2-threads.c -e 's|zstd_ret = ZSTD_compressStream2|ZSTD_CCtx_setParameter(cctx, ZSTD_c_strategy, ZSTD_fast); ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, 1); ZSTD_CCtx_setParameter(cctx, ZSTD_c_enableLongDistanceMatching, 0);&|'
           sed -i build/build.ninja -e 's|-static-pie||g' -e 's|/libz.a|/libz.so|g' -e 's|/libc.a|/libc.so|g' -e 's|/libm.a|/libm.so|g'
-          sed -i 's|return arg.ret;|if (dest_size > src_size * 1.1) {\n    dest_size *= 2;\n}\nreturn arg.ret;|g' block/qcow2-threads.c
           make qemu-img -j$(nproc)
           strip build/qemu-img
           ldd build/qemu-img
