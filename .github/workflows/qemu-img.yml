@@ -26,4 +26,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: qemu-img-min-zstd
-          path: qemu-8.2.0/build/qemu-img
+          path: qemu/build/qemu-img
